@@ -12,7 +12,7 @@
 
 #define HAVE_LAPACK_CONFIG_H
 #define LAPACK_COMPLEX_STRUCTURE
-#include "lapack/lapacke/include/lapacke.h"
+#include <lapacke.h>
 typedef int __CLPK_integer;
 
 typedef double __CLPK_doublereal;
@@ -91,7 +91,7 @@ eigx_ (double *pmat, double *ev, __CLPK_integer * n)
     free (z);
     mem_error ();
   }
-  dspev_ (&jobz, &uplo, n, pmat, ev, z, &ldz, work, &info);
+  LAPACK_dspev (&jobz, &uplo, n, pmat, ev, z, &ldz, work, &info);
   free (z);
   free (work);
   if (info) {
@@ -115,7 +115,7 @@ eigxv_ (double *pmat, double *eval, double *evec, __CLPK_integer * n)
   if (!work) {
     mem_error ();
   }
-  dspev_ (&jobz, &uplo, n, pmat, eval, evec, &ldz, work, &info);
+  LAPACK_dspev (&jobz, &uplo, n, pmat, eval, evec, &ldz, work, &info);
   free (work);
   if (info) {
 #if __LP64__ || _WIN32
@@ -133,7 +133,7 @@ cdc_ (double *pmat, __CLPK_integer * n)
   char uplo = 'L';
   __CLPK_integer lda = *n;
   __CLPK_integer info;
-  dpotrf_ (&uplo, n, pmat, &lda, &info);
+  LAPACK_dpotrf (&uplo, n, pmat, &lda, &info);
   if (info) {
     if (info < 0) {
 #if __LP64__ || _WIN32
@@ -209,7 +209,7 @@ solve_ (double *pmat, double *v, __CLPK_integer * n)
     free (work);
     inverse_error ("SOLVE", info);
   }
-  dgetrs_ (&trans, n, &nrhs, pmat, n, ipiv, v, &ldb, &info);
+  LAPACK_dgetrs (&trans, n, &nrhs, pmat, n, ipiv, v, &ldb, &info);
   free (ipiv);
   free (work);
   if (info < 0) {
@@ -227,7 +227,7 @@ geneigsolve_ (double *pmat, double *qmat, double *eval, __CLPK_integer * n)
   if (!work) {
     mem_error ();
   }
-  dsygv_ (&wood_elf, "V", "U", n, pmat, n, qmat, n, eval, work, &lwork,
+  LAPACK_dsygv (&wood_elf, "V", "U", n, pmat, n, qmat, n, eval, work, &lwork,
 	  &info);
   free (work);
   if (info && (info <= 2 * (*n))) {

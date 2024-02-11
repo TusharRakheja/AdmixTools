@@ -1495,7 +1495,7 @@ getgenos (char *genoname, SNP ** snpmarkers, Indiv ** indivmarkers,
       continue;
     iteml = hashlist + k;
     iteml->key = cupt->ID;
-    iteml->data = basept + k;
+    iteml->data = ((char *)basept) + k;
     if (xhsearch (*iteml, FIND) != NULL)
       fatalx ("duplicate ID: %s\n", iteml->key);
     (void) xhsearch (*iteml, ENTER);
@@ -1507,7 +1507,7 @@ getgenos (char *genoname, SNP ** snpmarkers, Indiv ** indivmarkers,
     indx = indivmarkers[k];
     iteml = hashlist + numsnps + k;
     iteml->key = indx->ID;
-    iteml->data = basept + k + bigoff;
+    iteml->data = ((char *)basept) + k + bigoff;
     if (xhsearch (*iteml, FIND) != NULL)
       fatalx ("duplicate ID: %s\n", iteml->key);
     (void) xhsearch (*iteml, ENTER);

@@ -1895,12 +1895,6 @@ ipow2 (int l)
   return nnint (pow (2.0, l));
 }
 
-double
-pow10 (double x)
-{
-  return exp (x * log (10.0));
-}
-
 
 void
 vpow10 (double *a, double *b, int n)
@@ -2421,7 +2415,7 @@ iswap (int *pa, int *pb)
 }
 
 void
-cswap (char *c1, char *c2)
+charswap (char *c1, char *c2)
 {
   char cc;
 
@@ -3031,7 +3025,7 @@ double calcmem (int mode)
   return 0 ;
  }
 
- return (double) (topheap()  - ttt) ; 
+ return (double) (((char *)topheap())  - ttt) ; 
 
 }
 

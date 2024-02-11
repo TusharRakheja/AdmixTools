@@ -36,3 +36,5 @@ rolloffp
 simpjack2
 tables
 qpmix
+*.exe
+*.obj

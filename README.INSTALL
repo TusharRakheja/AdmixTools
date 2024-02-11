@@ -1,3 +1,5 @@
+<!-- vim: syntax=Markdown -->
+
 ADMIXTOOLS version 5.0  6/28/18 (for Linux and Mac)
 
 Best is to recompile on your system. 
@@ -11,3 +13,157 @@ cd src;  make clobber; make all; make install.  Eexcutables will be in ../bin
 A Makefile that worked for a Mac (El Capitan) is in src/Makefile.mac
 
 Nick Patterson
+ADMIXTOOLS version 5.0  6/28/18 (for Linux, Mac, and Windows)
+
+For Linux and Mac:
+
+Best is to recompile on your system.
+
+You will need to be able to link GNU Scientific library(gsl) , BLAS, gfortran, and prpbably lapack.
+This Makefile expects opeenblas but other versions of BLAS should be OK.  Edit the Makefile
+appropriately.
+
+cd src;  make clobber; make all; make install.  Eexcutables will be in ../bin
+
+A Makefile that worked for a Mac (El Capitan) is in src/Makefile.mac
+
+Nick Patterson
+
+------
+
+**For Windows**
+
+You can download the executables from the "Releases" section. Should work on x64 Windows 11 (maybe 10 too).
+
+**Compiling it yourself - Build tools**
+
+If you want to compile it yourself, you'll need for Windows all the packages mentioned for Mac and Linux, and more. But before you start, you'll need these individual components from Visual Studio Build Tools (2022):
+
+- Windows Universal C Runtime
+- Windows 11 SDK
+- MSVC v143 - VS 2022 C++ x64/x86 build tools
+
+For the SDK, I'm using version 10.0.22621.0, and for the build tools, v14.38-17.8.
+
+To download and install these, I recommend using the Visual Studio Installer (the thing that gets installed before Visual Studio itself, and helps you manage its versions). Once the installer is running, navigate to the "Available" tab, and click "Install" on "Visual Studio Community 2022".
+
+![](./assets/VSInstaller.png)
+
+On the next menu, go to the "Individual Components" tab, and select the three options you see selected on the right in the SS below (the same three are selected on the left too, but the list is huge so the third one isn't on screen):
+
+![](./assets/IndivComponents.png)
+
+Click install.
+
+Once done, look around in your filesystem for the `cl`, `lib`, `link` and `nmake` tools. They should've been installed too now, and will be in the same folder. On my machine, the folder looked something like this:
+
+```
+C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\bin\Hostx64\x64
+```
+
+Once you find the folder on your machine, [add it to PATH](https://www.youtube.com/watch?v=pGRw1bgb1gU).
+
+**Downloading the dependencies**
+
+We can now start gathering the dependencies for AdmixTools on Windows. We'll need all the ones mentioned for Mac and Linux, and then some. Here's where I got them, with the versions I used in parantheses where relevant:
+
+- [GSL](https://www.nuget.org/packages/gsl-msvc14-x64/) (msvc14-x64)
+- [OpenBLAS](https://sourceforge.net/projects/openblas/files/v0.3.26/) (v0.3.26-x64)
+- [libunistd](https://github.com/robinrowe/libunistd)
+- [sys](https://github.com/baidut/sys)
+
+I put these all in a folder called `CppLibs`. GSL and OpenBLAS should be ready to go already. `sys` and some parts of `libunistd` need to be compiled.
+
+For the `sys` repo, make a folder called `sys` under your `CppLibs` folder, and then clone the repo I linked to for this dependency under that folder. Your directory structure should like this:
+
+```
+CppLibs/
+    sys/
+        sys/
+            .git
+            times.c
+            times.h
+            LICENSE
+```
+
+For the other three dependencies, you can download/clone them directly into `CppLibs`, don't need to go one-level deeper like we did here. For example:
+
+```
+CppLibs/
+    libunistd/
+        .git
+        unistd/
+            unistd.cpp
+            getopt.cpp
+            sigaction.cpp
+```
+
+**Building the dependencies**
+
+Once you've downloaded everything, another set of folders you want to dig for, are the ones being added to the `CFLAGS` macro in [`src/Makefile.windows`](./src/Makefile.windows). The same ones also used in [`src/nicksrc/Makefile.windows`](./src/nicksrc/Makefile.windows) fwiw. We'll start to need them now. I'll refer to the paths for these folders (aka "include paths") on your PC as `<path_to_ucrt_h>`, `<path_to_um_h>` etc.
+
+
+**Build `sys/times`**
+
+Refer to the directory tree for the `sys` dependency shown before. Navigate via PowerShell to the directory for `sys`, and then to the subdirectory that contains the `times.c` and `times.h` files. Then, do:
+```
+cl /I <path_to_ucrt_h> /I <path_to_um_h> ... /c .\times.c           // I ended up needing the include paths from lines 5, 7, 8, and 12 of Makefile.windows
+lib .\times.obj
+```
+This should have created a `times.lib` file in the same directory. We'll need it later.
+
+**Build `getopt`, `unistd`, and `sigaction`**
+
+Now, refer to the directory tree for the `libunistd` dependency shown before. We need to build three libs in there, and they'll all be in the `unistd` subdirectory.
+
+For better management, to start, create a folder called `libs` under `unistd`, so that the directory tree looks like this:
+```
+CppLibs/
+    libunistd/
+        .git
+        unistd/
+            unistd.cpp
+            getopt.cpp
+            sigaction.cpp
+            libs/
+```
+
+For the next part, you need the paths to [`Uuid.lib`](./src/Makefile.windows#L19), [`libcmt.lib`](./src/Makefile.windows#L20), and [`oldnames.lib`](./src/Makefile.windows#L21)
+
+Now do:
+```
+cl /I <path_to_ucrt_h> /I <path_to_um_h> ... /c .\unistd.cpp        // I ended up using all the include paths
+lib .\unistd.obj /out:libs\unistd.lib
+
+cl /I <path_to_ucrt_h> /I <path_to_um_h> ... /c .\getopt.cpp
+lib .\getopt.obj /out:libs\getopt.lib
+
+cl /I <path_to_ucrt_h> /I <path_to_um_h> ... /c .\sigaction.cpp
+lib /LIBPATH <path_to_uuid.lib> /LIBPATH <path_to_libcmt.lib> /LIBPATH <path_to_oldnames.lib> .\sigaction.obj
+mv .\sigaction.lib .\libs\
+```
+
+Now, look at the contents of the `libs` folder you created. It should have three static libraries in it, the sames ones we just made.
+
+
+**Build AdmixTools**
+
+Now, navigate to the `AdmixTools/src`, and then do:
+```
+nmake /F Makefile.windows clobber
+nmake /F Makefile.windows all
+nmake /F Makefile.windows install
+nmake /F Makefile.windows clean
+```
+
+Look inside the `AdmixTools/bin` folder, and you should have your executables there!
+
+```
+PS \AdmixTools\bin> .\qpfstats.exe
+no parameters
+## qpfstats version: 540
+```
+
+Now add this folder to PATH, and you're done!
+
+-Tushar

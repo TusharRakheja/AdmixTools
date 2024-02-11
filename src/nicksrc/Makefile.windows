@@ -1,0 +1,17 @@
+CFLAGS = /I "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\include"
+CFLAGS = $(CFLAGS) /I "C:\CppLibs\libunistd\unistd"
+CFLAGS = $(CFLAGS) /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt"
+CFLAGS = $(CFLAGS) /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um"
+CFLAGS = $(CFLAGS) /I "C:\CppLibs\sys"
+CFLAGS = $(CFLAGS) /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared"
+CFLAGS = $(CFLAGS) /I "$(MAKEDIR)"
+CFLAGS = $(CFLAGS) /I "$(MAKEDIR)/.." /c
+
+all: libnick.lib
+
+libnick.lib: strsubs.obj sortit.obj vsubs.obj statsubs.obj linsubs.obj getpars.obj xsearch.obj gauss.obj gds.obj
+	lib /out:libnick.lib $**
+
+clean:
+	del *.obj
+	del libnick.lib

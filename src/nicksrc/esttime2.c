@@ -4,7 +4,6 @@
 #include <nicklib.h>
 #include <getpars.h> 
 #include "regsubs.h"
-#include "arms.h"
 
 int verbose = NO ; 
 #define  VERSION  "100"  

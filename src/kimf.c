@@ -1855,7 +1855,7 @@ int seekbst(int lev, int *cl)
  if (fpt == NULL) { 
   copyiarr(cl, clstore[numclstore], 2*numvertex) ;
   ept -> key = clcstore[numclstore] = strdup(s1) ;  
-  ept -> data = base +  numclstore ;
+  ept -> data = ((char *)base) +  numclstore ;
   ++numclstore ;
   ++numconfighash ;
   ++xcload ;  

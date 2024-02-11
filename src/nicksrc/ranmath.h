@@ -5,7 +5,7 @@
 #include <limits.h>
 
 #define BIGINT INT_MAX   
-#define SRAND  srandom
+#define SRAND  srand
 #define LRAND  random
 #define DRAND() ( (double) (random() % BIGINT) / (double) (BIGINT)) 
 #define DRAND2() ( drand2() ) 

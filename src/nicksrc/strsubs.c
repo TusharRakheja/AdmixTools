@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <xsearch.h>   
+#include <xsearch.h>
 
 
 #define MAXSTR 10000

@@ -1,0 +1,162 @@
+HOMEL=$(MAKEDIR)
+TOP=..\bin
+BIN=$(HOMEL)\..\bin
+
+CFLAGS = /I "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\include"
+CFLAGS = $(CFLAGS) /I "C:\CppLibs\libunistd\unistd"
+CFLAGS = $(CFLAGS) /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt"
+CFLAGS = $(CFLAGS) /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um"
+CFLAGS = $(CFLAGS) /I "C:\CppLibs\sys"
+CFLAGS = $(CFLAGS) /I "C:\CppLibs\gsl-msvc14-x64.2.3.0.2779\build\native"
+CFLAGS = $(CFLAGS) /I "C:\CppLibs\OpenBLAS-0.3.26-x64-64\include"
+CFLAGS = $(CFLAGS) /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared"
+CFLAGS = $(CFLAGS) /I "$(MAKEDIR)"
+CFLAGS = $(CFLAGS) /I "$(MAKEDIR)\nicksrc"
+
+ND = nicksrc
+NLIB = $(ND)\libnick.lib
+
+LDLIBS = /LIBPATH "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\Uuid.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\lib\x64\libcmt.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\lib\x64\oldnames.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\kernel32.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\kernel32.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\lib\x64\libvcruntime.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\ucrt\x64\libucrt.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\CppLibs\libunistd\unistd\libs\getopt.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\CppLibs\libunistd\unistd\libs\unistd.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\CppLibs\sys\sys\times.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64\AdvAPI32.Lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\CppLibs\libunistd\unistd\libs\sigaction.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\CppLibs\OpenBLAS-0.3.26-x64-64\lib\libopenblas.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.38.33130\lib\x64\msvcrt.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "C:\CppLibs\gsl-msvc14-x64.2.3.0.2779\build\native\gsl.lib"
+LDLIBS = $(LDLIBS) /LIBPATH "$(MAKEDIR)\$(NLIB)"
+
+PROGS= qp3Pop qpDstat qpF4ratio qpAdm qpWave qp4diff qpdslow dowtjack qpBound qpreroot qpff3base qpDpart qpfstats qpfmv qpmix # qpGraph
+PROGS3 = rolloff rolloffp convertf mergeit simpjack2 grabpars gcount # kimf
+PERLP = jackdiff mkpretty numlines getresult xtractcol
+
+PROGS2 = rexpfit.r  wtjack.pl
+
+all: $(NLIB) $(PROGS) $(PROGS3)
+
+
+$(NLIB):
+	cd "$(MAKEDIR)\$(ND)"
+	$(MAKE) /F Makefile.windows
+	cd "$(MAKEDIR)"
+
+qpDstat: $(NLIB) qpDstat.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qpdslow: $(NLIB) qpdslow.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qpDpart: $(NLIB) qpDpart.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qp3Pop: $(NLIB) qp3Pop.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qp4diff: $(NLIB) qp4diff.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qpF4ratio: $(NLIB) qpF4ratio.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qpF4ratio: $(NLIB) qpF4ratio.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qpf4diff: $(NLIB) f4diff.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+rolloff: $(NLIB) rolloff.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+rolloffp: $(NLIB) rolloffp.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+qpBound: $(NLIB) qpBound.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj  egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+dowtjack: $(NLIB) dowtjack.obj
+	link $(LDLIBS) $**
+
+convertf: $(NLIB) convertf.obj mcio.obj admutils.obj egsubs.obj h2d.obj exclude.obj
+	link $(LDLIBS) $**
+
+mergeit: $(NLIB) mergeit.obj mcio.obj admutils.obj egsubs.obj h2d.obj exclude.obj
+	link $(LDLIBS) $**
+
+grabpars: $(NLIB) grabpars.obj
+	link $(LDLIBS) $**
+
+qpff3base: $(NLIB) qpff3base.obj qpgsubs.obj qpsubs.obj mcio.obj admutils.obj egsubs.obj regsubs.obj ldsubs.obj
+	link $(LDLIBS) $**
+
+qpfstats: $(NLIB) qpfstats.obj qpgsubs.obj qpsubs.obj mcio.obj admutils.obj egsubs.obj regsubs.obj ldsubs.obj
+	link $(LDLIBS) $**
+
+qpfmv: $(NLIB) qpfmv.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj  egsubs.obj regsubs.obj  eigsubs.obj eigx.obj
+	link $(LDLIBS) $**
+
+qpAdm: $(NLIB) qpAdm.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj  egsubs.obj regsubs.obj f4rank.obj  eigsubs.obj eigx.obj
+	link $(LDLIBS) $**
+
+qpWave: $(NLIB) qpWave.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj  egsubs.obj regsubs.obj f4rank.obj eigsubs.obj eigx.obj
+	link $(LDLIBS) $**
+
+qpmix:  $(NLIB)  qpmix.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj  egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+simpjack2: $(NLIB) simpjack2.obj
+	link $(LDLIBS) $**
+
+install:	all dirs tables
+	if not exist "$(TOP)" mkdir "$(TOP)"
+	for %I in ($(PROGS)) do copy %I.exe "$(TOP)"
+	for %I in ($(PROGS2)) do copy %I "$(TOP)"
+	for %I in ($(PROGS3)) do copy %I.exe "$(TOP)"
+	for %I in ($(PERLP)) do copy ..\perlsrc\%I "$(TOP)"
+
+uninstall:
+	del /f /q tables
+	del /f /q "$(TOP)\*"
+
+tables:
+	echo "tables made" > tables
+	copy .\twtable "$(HOMEL)\admixtables"
+
+dirs:
+	if not exist admixtables mkdir admixtables
+
+clean:
+	del /f /q *.obj
+	del /f /q *junk*
+	del /f /q "$(MAKEDIR).\core"
+	cd "$(MAKEDIR)\$(ND)"
+	$(MAKE) /F Makefile.windows clean
+	cd "$(MAKEDIR)"
+	for %I in ($(PROGS)) do del /f /q %I.exe
+	for %I in ($(PROGS3)) do del /f /q %I.exe
+
+clobber: clean rmdirs uninstall
+
+
+rmdirs:
+	if exist "$(HOMEL)\admixtables" rmdir /s /q "$(HOMEL)\admixtables"
+
+## gsl-config may help here
+
+#qpGraph: $(NLIB) qpGraph.obj gslqp.obj qpgsubs.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+#	link $(LDLIBS) $**
+
+qpreroot: qpreroot.obj qpgsubs.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+gcount: gcount.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+	link $(LDLIBS) $**
+
+#kimf: kimf.obj gslkim.obj qpgsubs.obj qpsubs.obj mcio.obj ldsubs.obj admutils.obj egsubs.obj regsubs.obj
+#	link $(LDLIBS) $**

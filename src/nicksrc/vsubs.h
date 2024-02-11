@@ -153,8 +153,7 @@ double sublog(double a, double b) ;
 double logsum(double *x, int n)  ;
 double addlogv(double *a, int n) ;
 double vlsum(double *x, int n) ;
-double vldot(double *x, double *y, int n) ;
-double pow10 (double x) ;
+double vldot(double *x, double *y, int n);
 void vpow10 (double *a, double *b, int n) ;
 void vlog10 (double *a, double *b, int n) ;
 /* matrix transpose */
@@ -197,7 +196,7 @@ void *topheap () ;
 
 void swap (double *pa, double *pb) ;
 void iswap (int *pa, int *pb) ;
-void cswap(char *c1, char *c2) ;
+void charswap(char *c1, char *c2) ;
 
 
 void copycol(double *x, double **a, int n, int col)  ;

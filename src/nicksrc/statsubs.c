@@ -2613,7 +2613,7 @@ void bj2x(int *type, int a, int b, double *plpv, double *prpv, double *ppv)
  int n =  a + b   ;  
  double **hp, **ltail, **rtail ; 
  double *pl, *pr ; 
- double lstat, rstat, stat ;                              
+ double lstat, rstat, sstat ;                              
  double lpv, rpv, pv, y ;
  int *lthresh, *rthresh ; 
 
@@ -2645,7 +2645,7 @@ void bj2x(int *type, int a, int b, double *plpv, double *prpv, double *ppv)
  ZALLOC(rthresh, n+1, int) ;
  vmaxmin(pl, n, NULL, &lstat) ;
  vmaxmin(pr, n, NULL, &rstat) ;
- stat = MIN(lstat, rstat) ;   
+ sstat = MIN(lstat, rstat) ;   
  setthresh(lthresh,  ltail, a, b, lstat, 1) ;
  ivclear(rthresh, n+99, n+1) ; 
  lpv = genhpt(a, b, lthresh, rthresh) ; 
@@ -2655,8 +2655,8 @@ void bj2x(int *type, int a, int b, double *plpv, double *prpv, double *ppv)
  ivclear(lthresh, 0, n+1) ; 
  rpv = genhpt(a, b, lthresh, rthresh) ; 
 //  printf("rstat: %9.3f rpv: %12.6f\n", rstat, rpv) ; 
- setthresh(lthresh,  ltail, a, b, stat, 1) ;
- setthresh(rthresh,  rtail, a, b, stat, 2) ;
+ setthresh(lthresh,  ltail, a, b, sstat, 1) ;
+ setthresh(rthresh,  rtail, a, b, sstat, 2) ;
  pv = genhpt(a, b, lthresh, rthresh) ; 
 //  printf("stat: %9.3f pv: %12.6f\n", stat, pv) ; 
 

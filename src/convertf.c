@@ -1275,7 +1275,7 @@ flip1 (SNP * cupt, int phasedmode, int flipreference)
     flipalleles_phased (cupt);
 // just flips genotypes  
   if (flipreference)
-    cswap (&cupt->alleles[0], &cupt->alleles[1]);
+    charswap (&cupt->alleles[0], &cupt->alleles[1]);
 }
 
 void

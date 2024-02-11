@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-// #include <openssl/md2.h>
+#include <corecrt_math.h>
 #include "admutils.h" 
 
 #include  "packit.h"   
@@ -456,7 +456,7 @@ testnan(double *a, int n)
   int i ;
 
   for (i=0; i<n; i++) {
-   if (!finite(a[i])) fatalx("(testnan) fails:  index %d\n",i) ;
+   if (!isfinite(a[i])) fatalx("(testnan) fails:  index %d\n",i) ;
   }
 }
 void getgall(SNP *cupt, int *x, int n) 
