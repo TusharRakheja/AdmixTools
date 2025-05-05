@@ -2,11 +2,11 @@ HOMEL=$(PWD)
 TOP=../bin
 BIN=$(HOMEL)/../bin
 
-override LDLIBS += -lgsl -lopenblas -lm -lnick
+override LDLIBS += -lgsl -lblas -lm -lnick -llapack
 # Some Linux distributions require separate lapacke library
 # override LDLIBS += -llapacke
-override LDFLAGS += -g  -p -pg -L./nicksrc
-override CFLAGS += -c -g -p -pg -Wimplicit -I./ -I./nicksrc -fno-common
+override LDFLAGS += -g  -p -pg -L./nicksrc -L/usr/lib
+override CFLAGS += -c -g -p -pg -Wimplicit -I./ -I./nicksrc -I/usr/include -fno-common
 # Mac additions using homebrew installations
 #override CFLAGS += -I/usr/local/opt/openblas/include -I/usr/local/opt/gsl/include
 #override LDFLAGS += -L/usr/local/opt/openblas/lib -L/usr/local/opt/gsl/lib
@@ -119,7 +119,7 @@ install:	all dirs tables
 	cp $(PROGS) $(TOP)
 	cp $(PROGS2) $(TOP)
 	cp $(PROGS3) $(TOP)
-	cp $(PROGS3) $(TOP)
+	cp $(PROGS4) $(TOP)
 	cp ../perlsrc/* $(TOP) 
 	cp fxtract $(BIN)
 	cp -r script $(BIN) 

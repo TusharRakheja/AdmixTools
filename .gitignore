@@ -27,3 +27,5 @@ examples.qpGraph/*:log
 examples.qpGraph/*.ggg
 examples.qpGraph/*.dot
 examples.qpGraph/*.ps
+
+.vscode
