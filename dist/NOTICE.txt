@@ -1,0 +1,65 @@
+NOTICE -- third-party components bundled in this distribution
+=============================================================
+
+This archive contains ADMIXTOOLS 8.1.0 compiled for Windows, together with
+the runtime libraries it needs. AdmixTools itself is BSD-3-Clause (see
+AdmixTools-BSD-3-Clause.txt), but it links GNU Scientific Library and
+GNU Readline, which are GPL-3.0-or-later. The aggregate work in this
+archive is therefore distributed under the terms of the GPL-3.0-or-later
+(see GPL-3.0.txt).
+
+AdmixTools
+----------
+  Copyright (c) 2009-2016, Broad Institute, Inc.  BSD-3-Clause.
+  Source: https://github.com/DReichLab/AdmixTools
+  Windows build: https://github.com/TusharRakheja/AdmixTools  (branch v8.1.0-win-1, tag v8.1.0-1)
+
+Bundled Cygwin runtime libraries (bin/*.dll)
+--------------------------------------------
+Package names and versions below were read from this build machine with
+`cygcheck -f`, so they identify exactly which binaries were shipped.
+
+  cygwin1.dll            cygwin-3.6.4-1                      LGPL-3.0-or-later
+  cyggsl-19.dll          libgsl19-2.3-2                      GPL-3.0-or-later
+  cygreadline7.dll       libreadline7-8.2-2                  GPL-3.0-or-later
+  cygblas-0.dll          libopenblas-0.3.25-1                BSD-3-Clause
+  cyglapack-0.dll        liblapack0-3.12.0-1                 BSD-3-Clause
+  cygpcre2-8-0.dll       libpcre2_8_0-10.46-1                BSD-3-Clause
+  cyggcc_s-seh-1.dll     libgcc1-13.4.0-1                    GPL-3.0+ w/ GCC Runtime Library Exception
+  cyggfortran-5.dll      libgfortran5-13.4.0-1               GPL-3.0+ w/ GCC Runtime Library Exception
+  cygquadmath-0.dll      libquadmath0-13.4.0-1               LGPL-2.1-or-later
+  cygiconv-2.dll         libiconv2-1.17-1                    LGPL-2.1-or-later
+  cygintl-8.dll          libintl8-0.22.5-1                   LGPL-2.1-or-later
+  cygattr-1.dll          libattr1-2.5.1-1.20.g0981a7bfe487   LGPL-2.1-or-later
+  cygncursesw-10.dll     libncursesw10-6.5+20240427-1        MIT/X11-style
+
+Bundled Cygwin utilities (bin/)
+-------------------------------
+Several AdmixTools programs call system(), which needs a POSIX shell and a
+few utilities. These are included so the archive works without a Cygwin
+installation.
+
+  sh.exe                 bash-5.2.21-1                       GPL-3.0-or-later
+  grep.exe               grep-3.12-1                         GPL-3.0-or-later
+  cp.exe                 coreutils-9.0-1                     GPL-3.0-or-later
+  gzip.exe               gzip-1.14-1                          GPL-3.0-or-later
+  fgrep, gunzip          (shell wrappers from the above packages)
+
+Obtaining source for the bundled components
+-------------------------------------------
+Every component above is packaged by the Cygwin project, and the exact
+source corresponding to each binary is available from any Cygwin mirror.
+Install Cygwin's `cygport` tooling, or fetch directly:
+
+  https://cygwin.com/packages/              -- package index
+  https://cygwin.com/mirrors.html           -- mirror list
+  https://cygwin.com/git.html               -- cygwin1.dll (winsup) source
+
+To retrieve a specific version, download the matching `-src` tarball for
+the package name and version listed above from a mirror's `x86_64/release`
+tree. The Cygwin DLL itself (cygwin1.dll) is LGPL-3.0-or-later; its source
+and licence are described in Cygwin-LICENSE.txt.
+
+Licence identification above reflects the upstream projects' own terms to
+the best of our knowledge. The authoritative licence text for each
+component ships inside that component's own source distribution.

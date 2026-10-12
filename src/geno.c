@@ -175,7 +175,7 @@ void genotype_matrix_header(const genotype_matrix *this, bool transpose, char *d
 }
 
 int genotype_matrix_write_packed_file(const genotype_matrix *this, const char *filename, bool transpose){
-	FILE *output = fopen(filename, "w");
+	FILE *output = fopen(filename, "wb");
 
 	// first write out header
 	int header_size = GENO_HEADER_SIZE;

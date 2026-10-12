@@ -1,0 +1,146 @@
+qpAdm: parameter file: par.qpAdm
+### THE INPUT PARAMETERS
+##PARAMETER NAME: VALUE
+indivname: synth.ind
+snpname: synth.snp
+genotypename: synth.geno
+popleft: left1
+popright: right1
+details: YES
+allsnps: YES
+inbreed: NO
+seed: 314159
+##  qpAdm -p par.qpAdm
+## qpAdm version: 2206
+seed: 314159
+oracle mode 1
+inbreed set NO
+
+left pops:
+              Target     20
+                  S1     20
+                  S2     20
+                  S3     20
+
+right pops:
+                  R1     20
+                  R2     20
+                  R3     20
+                  R4     20
+                  R5     20
+
+fstats loaded; effblocks:   199.844
+oascovar: rho     0.022798 mu     2.45e-07
+adding to variance diagonal:     0.000000000
+codimension 1
+f4info: 
+f4rank: 2 dof:      2 chisq:     1.229 tail:          0.540911759 dofdiff:      4 chisqdiff:    -1.229 taildiff:                    1
+B:
+          scale     1.000     1.000 
+             R2    -0.055    -0.069 
+             R3     1.214    -0.691 
+             R4     1.223    -0.733 
+             R5     1.014     1.726 
+A:
+          scale   153.022   309.712 
+             S1    -0.988    -0.040 
+             S2     1.253    -0.845 
+             S3     0.674     1.512 
+
+
+full rank
+f4info: 
+f4rank: 3 dof:      0 chisq:     0.000 tail:                    1 dofdiff:      2 chisqdiff:     1.229 taildiff:          0.540911759
+B:
+          scale   156.482   116.018   152.092 
+             R2     0.068    -0.022    -0.079 
+             R3    -1.175     1.387     0.312 
+             R4    -1.229     1.379     0.251 
+             R5    -1.051     0.418     1.958 
+A:
+          scale     1.732     1.732     1.732 
+             S1     1.732     0.000     0.000 
+             S2     0.000     1.732     0.000 
+             S3     0.000     0.000     1.732 
+
+
+best coefficients:     0.512     0.304     0.184 
+totmean:      0.512     0.304     0.184 
+varboot
+    0.505463049     0.323371145     0.171165807 
+   -0.006434558    -0.000084476 
+    0.008001723    -0.002507486 
+    0.003884566     0.004986673 
+evarboot2
+    0.518396116     0.285131572     0.196472313 
+   -0.006471825    -0.000191862 
+    0.008378617    -0.002939319 
+    0.004916524     0.004771934 
+bootstrap sampling of F-coeffs: 1000
+boot mean:     0.512     0.304     0.184 
+boot std. errors:     0.017     0.019     0.018 
+
+error covariance (* 1,000,000)
+       300       -171       -129 
+      -171        356       -185 
+      -129       -185        314 
+
+
+summ: Target    3      0.540912     0.512     0.304     0.184        300       -171       -129        356       -185        314 
+
+    fixed pat  wt  dof     chisq       tail prob
+          000  0     2     1.229        0.540912     0.512     0.304     0.184 
+          001  1     3    87.322     8.23302e-19     0.597     0.403     0.000 
+          010  1     3   210.000               0     0.673     0.000     0.327 
+          100  1     3   501.276               0     0.000     0.716     0.284 
+          011  2     4   400.871               0     1.000     0.000     0.000 
+          101  2     4   567.067               0     0.000     1.000     0.000 
+          110  2     4   785.894               0     0.000     0.000     1.000 
+best pat:          000         0.540912              -  -
+best pat:          001      8.23302e-19  chi(nested):    86.093 p-value for nested model:     1.71628e-20
+best pat:          011      1.80305e-85  chi(nested):   313.549 p-value for nested model:     3.68229e-70
+
+coeffs:     0.512     0.304     0.184 
+
+## dscore:: f_4(Base, Fit, Rbase, right2)
+## genstat:: f_4(Base, Fit, right1, right2)
+
+details:                   S1                   R2     0.000435    1.312870
+details:                   S2                   R2    -0.000188   -0.513329
+details:                   S3                   R2    -0.000519   -1.301914
+dscore:                   R2 f4:     0.000070 Z:     0.295334
+
+details:                   S1                   R3    -0.007506  -15.236105
+details:                   S2                   R3     0.011951   21.907047
+details:                   S3                   R3     0.002054    3.667033
+dscore:                   R3 f4:     0.000175 Z:     0.498652
+
+details:                   S1                   R4    -0.007856  -16.414219
+details:                   S2                   R4     0.011888   20.059080
+details:                   S3                   R4     0.001650    2.923116
+dscore:                   R4 f4:    -0.000098 Z:    -0.282959
+
+details:                   S1                   R5    -0.006716  -14.340935
+details:                   S2                   R5     0.003603    6.647775
+details:                   S3                   R5     0.012873   24.557537
+dscore:                   R5 f4:     0.000025 Z:     0.080166
+
+gendstat:                   R1                   R2     0.295
+gendstat:                   R1                   R3     0.499
+gendstat:                   R1                   R4    -0.283
+gendstat:                   R1                   R5     0.080
+gendstat:                   R2                   R3     0.297
+gendstat:                   R2                   R4    -0.466
+gendstat:                   R2                   R5    -0.140
+gendstat:                   R3                   R4    -1.086
+gendstat:                   R3                   R5    -0.446
+gendstat:                   R4                   R5     0.372
+
+worst Z-score with right hand mix
+f4(Target, Fit, Base, mix of Right pops;  Z:     1.109 sum:     1.000
+                            R2     0.929
+                            R3     4.442
+                            R4    -4.342
+                            R5    -0.029
+
+oldmode set: terminating

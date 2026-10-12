@@ -1,0 +1,16 @@
+# Force LF in the working tree on every platform.
+#
+# These files are stored with LF, but Git for Windows defaults to
+# core.autocrlf=true, so a Windows checkout rewrites them with CRLF.  That
+# breaks src/test/*.sh, because sh treats the trailing CR as part of the
+# command.  On the Windows CI runner it failed as
+#
+#   run_suite.sh: line 14: $'\r': command not found
+#   run_suite.sh: line 15: set: - : invalid option
+#
+# eol=lf overrides core.autocrlf for this repository, so the scripts stay
+# runnable and the recorded goldens stay byte-stable wherever they are cloned.
+* text=auto eol=lf
+
+# Committed binaries: never translate.
+*.pdf binary

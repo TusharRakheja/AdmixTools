@@ -1,82 +1,66 @@
-#include <argp.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "geno.h"
 
-static const char usage_documentation[] = "Transpose a genotype between a packed ancestry map format and a transpose packed format or vice versa.";
-
-static struct argp_option options[] = {
-	{"low-mem",	'm', 0, 0, "Do not allocate memory for the full genotype file. This will substantially reduce memory requirements but will be much slower." },
-	{ 0 }
+struct arguments {
+    char *input_file;
+    char *output_file;
+    int low_mem;
 };
 
-static char args_doc[] = "input_genotype_file output_genotype_file";
-
-struct arguments
-{
-	char *input_file;
-	char *output_file;
-	int low_mem;
-};
-
-static error_t
-parse_opt (int key, char *arg, struct argp_state *state)
-{
-	struct arguments *arguments = state->input;
-
-	switch (key){
-		case 'm':
-			arguments->low_mem = 1;
-			break;
-
-		case ARGP_KEY_ARG:
-			if (state->arg_num >= 2) // too many arguments
-				argp_usage (state);
-			else if (state->arg_num == 0)
-				arguments->input_file = arg;
-			else if (state->arg_num == 1)
-				arguments->output_file = arg;
-			break;
-
-		case ARGP_KEY_END:
-			if(state->arg_num < 2)
-				argp_usage(state);
-			break;
-
-		default:
-			return ARGP_ERR_UNKNOWN;
-	}
-	return 0;
+static void print_usage(const char *progname) {
+    printf("Usage: %s [-m|--low-mem] input_genotype_file output_genotype_file\n", progname);
+    printf("  -m, --low-mem: low-mem mode, do not allocate memory for the full genotype file\n");
 }
 
-/* Our argp parser. */
-static struct argp argp = { options, parse_opt, args_doc, usage_documentation };
+int main(int argc, char **argv) {
+    struct arguments arguments;
+    arguments.low_mem = 0;
+    arguments.input_file = NULL;
+    arguments.output_file = NULL;
 
-int main(int argc, char **argv){
-	struct arguments arguments;
+    int arg_index = 1;
 
-	// default
-	arguments.low_mem = 0;
+    // Parse optional flags first
+    while (arg_index < argc && argv[arg_index][0] == '-') {
+        if (strcmp(argv[arg_index], "-m") == 0 ||
+            strcmp(argv[arg_index], "--low-mem") == 0) {
+            arguments.low_mem = 1;
+        } else {
+            print_usage(argv[0]);
+            return -1;
+        }
+        arg_index++;
+    }
 
-	argp_parse (&argp, argc, argv, 0, 0, &arguments);
+    // Parse positional arguments
+    if (argc - arg_index != 2) {
+        print_usage(argv[0]);
+        return -1;
+    }
 
-	genotype_matrix geno;
+    arguments.input_file = argv[arg_index];
+    arguments.output_file = argv[arg_index + 1];
 
-	printf("reading %s\n", arguments.input_file);
-	genotype_matrix_initialize(&geno);
-	int result;
-	if (arguments.low_mem){
-		result = genotype_matrix_read_file(&geno, arguments.input_file, 0, NULL, NULL);
-	} else{
-		result = genotype_matrix_read_file_full(&geno, arguments.input_file, 0, NULL, NULL);
-	}
-	if (result < 0){
-		printf("Error %d", result);
-		return result;
-	}
+    genotype_matrix geno;
+    printf("reading %s\n", arguments.input_file);
+    genotype_matrix_initialize(&geno);
 
-	genotype_matrix_write_packed_file(&geno, arguments.output_file, !geno.transpose);
+    int result;
+    if (arguments.low_mem) {
+        result = genotype_matrix_read_file(&geno, arguments.input_file, 0, NULL, NULL);
+    } else {
+        result = genotype_matrix_read_file_full(&geno, arguments.input_file, 0, NULL, NULL);
+    }
 
-	genotype_matrix_destructor(&geno);
-	return 0;
+    if (result < 0) {
+        printf("Error %d\n", result);
+        return result;
+    }
+
+    genotype_matrix_write_packed_file(&geno, arguments.output_file, !geno.transpose);
+
+    genotype_matrix_destructor(&geno);
+    return 0;
 }

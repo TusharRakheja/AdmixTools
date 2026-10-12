@@ -1,0 +1,235 @@
+name: regression
+
+# Guards the Windows port against drifting from upstream behaviour.
+#
+# The goldens in src/test/goldens were recorded from a build of pristine
+# upstream AdmixTools on Linux, which is the platform upstream targets.  Both
+# jobs below run the same suite on the same synthetic dataset and compare
+# against those goldens, so a mismatch means this branch changed behaviour.
+#
+# Verified before this workflow was written: a Linux build of this branch and a
+# Windows/Cygwin build of this branch both reproduce the goldens exactly -- all
+# binary artifacts byte-identical, qpAdm.out and fstats.txt numerically
+# identical.  The tolerance is therefore tight on purpose.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # The generator is seeded and standard-library only, but betavariate() is
+  # implemented in Python, so pin the interpreter: the goldens were recorded
+  # with 3.12.  compare_goldens.py checks the input data first and says so
+  # explicitly if this ever drifts.
+  PYTHON_VERSION: '3.12'
+  # Warning classes that indicate a real porting mistake.  A blanket
+  # zero-warning gate is not usable: glibc marks system()/fread() __wur, so
+  # Linux legitimately emits ~21 -Wunused-result warnings from upstream code
+  # that Cygwin's newlib does not.
+  BAD_WARNINGS: 'redefined|implicit declaration|incompatible pointer|makes pointer from integer|makes integer from pointer|-Wint-conversion|-Wformat='
+
+jobs:
+  # ------------------------------------------------------------------ Linux
+  # Proves the Windows patches did not change behaviour on upstream's own
+  # platform.  If this job fails, the port broke Linux.
+  linux:
+    name: linux reference
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential libgsl-dev libopenblas-dev liblapack-dev
+
+      - name: Build
+        run: |
+          cd src
+          make all 2>&1 | tee ../build.log
+          # Capture immediately: any intervening command resets PIPESTATUS.
+          rc=${PIPESTATUS[0]}
+          echo "make exit=$rc"
+          test "$rc" -eq 0
+
+      - name: Check for dangerous warnings
+        run: |
+          echo "total warnings: $(grep -ci 'warning:' build.log || true)"
+          if grep -iE "warning:.*($BAD_WARNINGS)|($BAD_WARNINGS)" build.log; then
+            echo "::error::build produced a warning class that indicates a porting mistake"
+            exit 1
+          fi
+          echo "no dangerous warnings"
+
+      - name: Install
+        run: cd src && make install
+
+      - name: Run suite
+        run: sh src/test/run_suite.sh bin "$RUNNER_TEMP/run"
+
+      - name: Compare against goldens
+        run: |
+          python3 src/test/compare_goldens.py compare \
+            "$RUNNER_TEMP/run" src/test/goldens --tolerance 1e-9
+
+      - name: CRLF list files must work
+        run: |
+          result=$(cat "$RUNNER_TEMP/run/crlf_result.txt")
+          echo "$result"
+          # Pristine upstream reports CRLF_LIST=failed here: it strips only
+          # '\n', so a CRLF list leaves a stray '\r' on the filename. This
+          # branch fixes that, so anything but ok is a regression.
+          test "$result" = "CRLF_LIST=ok"
+
+      - name: Upload outputs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-run
+          path: |
+            ${{ runner.temp }}/run
+            build.log
+          retention-days: 7
+
+  # ---------------------------------------------------------------- Windows
+  windows:
+    name: windows (cygwin)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: cygwin/cygwin-install-action@v4
+        with:
+          # binutils supplies objdump, which make_bundle.sh uses to compute the
+          # DLL closure.  libopenblas provides cygblas-0.dll (Cygwin's "blas"
+          # alternative is OpenBLAS); liblapack-devel provides cyglapack-0.dll,
+          # which lives in /usr/lib/lapack rather than /usr/bin.
+          packages: gcc-core make binutils libgsl-devel liblapack-devel libopenblas
+
+      - name: Guard against a shadowed GENO_HEADER_SIZE
+        shell: C:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+        run: |
+          cd "$(cygpath -u '${{ github.workspace }}')"
+          n=$(grep -rc 'define GENO_HEADER_SIZE' src/*.c src/*.h | awk -F: '{s+=$2} END {print s}')
+          echo "GENO_HEADER_SIZE definitions: $n"
+          # The transpose-packed format has a fixed 48-byte header defined once
+          # in geno.h. A second definition silently shadows it and corrupts
+          # every merged genotype file, which is exactly what happened before.
+          test "$n" -eq 1
+
+      - name: Build
+        shell: C:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+        run: |
+          cd "$(cygpath -u '${{ github.workspace }}')/src"
+          make all 2>&1 | tee ../build.log
+          rc=${PIPESTATUS[0]}
+          echo "make exit=$rc"
+          test "$rc" -eq 0
+          echo "built $(ls *.exe | wc -l) executables"
+
+      - name: Check for dangerous warnings
+        shell: C:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+        run: |
+          cd "$(cygpath -u '${{ github.workspace }}')"
+          echo "total warnings: $(grep -ci 'warning:' build.log || true)"
+          if grep -iE "warning:.*($BAD_WARNINGS)|($BAD_WARNINGS)" build.log; then
+            echo "::error::build produced a warning class that indicates a porting mistake"
+            exit 1
+          fi
+          echo "no dangerous warnings"
+
+      - name: Install
+        shell: C:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+        run: |
+          cd "$(cygpath -u '${{ github.workspace }}')/src"
+          make install
+
+      - name: Generate dataset
+        # Uses the Windows Python pinned above rather than a Cygwin one, so the
+        # interpreter version matches what the goldens were recorded with.
+        shell: pwsh
+        run: |
+          python src/test/gen_testdata.py "$env:RUNNER_TEMP/run"
+
+      - name: Run suite
+        shell: C:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+        run: |
+          W="$(cygpath -u '${{ github.workspace }}')"
+          cd "$W"
+          sh src/test/run_suite.sh bin "$(cygpath -u "$RUNNER_TEMP")/run"
+
+      - name: Compare against goldens
+        shell: pwsh
+        run: |
+          python src/test/compare_goldens.py compare `
+            "$env:RUNNER_TEMP/run" src/test/goldens --tolerance 1e-9
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: CRLF list files must work
+        shell: pwsh
+        run: |
+          $r = (Get-Content "$env:RUNNER_TEMP/run/crlf_result.txt").Trim()
+          Write-Output $r
+          if ($r -ne 'CRLF_LIST=ok') { Write-Output '::error::CRLF list handling regressed'; exit 1 }
+
+      - name: Assemble standalone bundle
+        shell: C:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+        run: |
+          W="$(cygpath -u '${{ github.workspace }}')"
+          cd "$W"
+          sh src/test/make_bundle.sh src "$(cygpath -u "$RUNNER_TEMP")/bundle"
+
+      - name: Bundle must run with Cygwin off PATH
+        # The check that matters most for the release: cyglapack-0.dll lives in
+        # /usr/lib/lapack, not /usr/bin, so it is easy to omit and only four
+        # programs import it. With Cygwin removed from PATH, a missing DLL
+        # surfaces as STATUS_DLL_NOT_FOUND (-1073741515).
+        shell: pwsh
+        run: |
+          $bin = "$env:RUNNER_TEMP/bundle/bin"
+          $sys = [System.Environment]::GetFolderPath('System')
+          $env:PATH = "$sys;$bin"
+          if ($env:PATH -match 'cygwin') { Write-Output '::error::Cygwin still on PATH; test invalid'; exit 1 }
+          $userland = @('sh.exe','grep.exe','cp.exe','gzip.exe')
+          $bad = @(); $n = 0
+          Get-ChildItem "$bin/*.exe" | Where-Object { $_.Name -notin $userland } | ForEach-Object {
+            $n++
+            $null = & $_.FullName 2>$null
+            if ($LASTEXITCODE -eq -1073741515) { $bad += $_.Name }
+          }
+          Write-Output "launched $n executables with Cygwin off PATH"
+          if ($bad.Count -gt 0) {
+            Write-Output ('::error::missing DLLs for: ' + ($bad -join ', '))
+            exit 1
+          }
+          Write-Output 'all executables resolved their libraries'
+          # Several tools return 255 when run with no arguments, and pwsh adopts
+          # the last native exit code as the step's own. Exit explicitly.
+          exit 0
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: admixtools-windows-bundle
+          path: ${{ runner.temp }}/bundle
+          retention-days: 14
+
+      - name: Upload outputs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-run
+          path: |
+            ${{ runner.temp }}/run
+            build.log
+          retention-days: 7

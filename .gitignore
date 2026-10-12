@@ -3,6 +3,13 @@
 *.o
 *.bak
 
+# Build output.  On Cygwin the targets get an .exe suffix, and `make clobber`
+# lists them without one, so it leaves them behind.
+src/*.exe
+
+# gprof output, written into the working directory by a -pg build
+gmon.out
+
 #Data - download example data from Reight lab website
 data/*
 
@@ -27,3 +34,22 @@ examples.qpGraph/*:log
 examples.qpGraph/*.ggg
 examples.qpGraph/*.dot
 examples.qpGraph/*.ps
+
+# The example scripts also regenerate these outputs. Upstream names them with
+# ':', which Windows forbids, so Git-for-Windows/MSYS writes them with U+F03A
+# instead and the ':' patterns above cannot match. Listed literally because
+# glob forms would also catch tracked files (examples.qpGraph/gr1x,
+# parsimp.templ, examples/parqp*).
+examples.qpGraph/gr1xlognullout
+examples.qpGraph/parsim1gr1triv
+examples.qpGraph/parsim1gr1x
+examples.qpGraph/parsim1gr1x2
+examples.qpGraph/parsim1gr1xnullout
+examples/gr1trivlog
+examples/gr1x2log
+examples/gr1xlog
+examples/xxqp4diff
+examples/xxqp4diffa
+examples/xxqpff3
+
+.vscode

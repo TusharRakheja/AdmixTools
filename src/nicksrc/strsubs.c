@@ -10,7 +10,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif
 #include <xsearch.h>   
 
 
@@ -228,7 +230,11 @@ fatalx (char *fmt, ...)
 void setdump(int cdump) 
 {
 
+/* prctl is Linux-only; coredump control is a no-op elsewhere.  README already
+   notes that this behaviour is system dependent. */
+#ifdef __linux__
   prctl(PR_SET_DUMPABLE, cdump) ; 
+#endif
 
 
 }

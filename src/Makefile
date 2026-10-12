@@ -2,7 +2,19 @@ HOMEL=$(PWD)
 TOP=../bin
 BIN=$(HOMEL)/../bin
 
-override LDLIBS += -lgsl -lopenblas -lm -lnick
+# BLAS/LAPACK backend.  openblas supplies both, but Cygwin packages blas and
+# lapack separately, so choose per platform instead of changing the link line
+# for everyone.  $(LAPACKLIBS) has to follow -lnick, which references it.
+UNAME_S := $(shell uname -s)
+ifneq (,$(findstring CYGWIN,$(UNAME_S)))
+BLASLIBS = -lblas
+LAPACKLIBS = -llapack
+else
+BLASLIBS = -lopenblas
+LAPACKLIBS =
+endif
+
+override LDLIBS += -lgsl $(BLASLIBS) -lm -lnick $(LAPACKLIBS)
 # Some Linux distributions require separate lapacke library
 # override LDLIBS += -llapacke
 override LDFLAGS += -L./nicksrc
